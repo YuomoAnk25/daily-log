@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Employee Attendance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<h2>YUOMO Attendance</h2>
+
+<input id="empID" placeholder="Employee ID"><br><br>
+<input id="mobile" placeholder="Mobile Number"><br><br>
+
+<select id="punchType">
+  <option>Punch IN</option>
+  <option>Punch OUT</option>
+</select><br><br>
+
+<button onclick="submitAttendance()">SUBMIT</button>
+
+<p id="msg"></p>
+
+<script>
+function submitAttendance() {
+  if (!navigator.geolocation) {
+    alert("GPS not supported");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(function(pos) {
+    sendData(pos.coords.latitude, pos.coords.longitude);
+  }, function() {
+    alert("Location permission REQUIRED");
+  }, { enableHighAccuracy: true });
+}
+
+function sendData(lat, lng) {
+  var url = "https://script.google.com/macros/s/AKfycbyuBaPcZmMM44Ar33iKsQ9y2KEYlGugKeK20zbl7yiSez1bQZU0lB3vBPMwsPZoYz8n/exec";
+
+  var data = new URLSearchParams();
+  data.append("empID", document.getElementById("empID").value);
+  data.append("mobile", document.getElementById("mobile").value);
+  data.append("punchType", document.getElementById("punchType").value);
+  data.append("lat", lat);
+  data.append("lng", lng);
+
+  fetch(url, { method: "POST", body: data })
+    .then(res => res.text())
+    .then(txt => {
+      document.getElementById("msg").innerHTML =
+        txt === "OK" ? "Attendance Marked ✅" : "Outside Office Area ❌";
+    });
+}
+</script>
+</body>
+</html>
